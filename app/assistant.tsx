@@ -7,6 +7,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { GeocodeLocationToolUI, WeatherSearchToolUI } from "@/components/tools/weather-tool";
 
 export const Assistant = () => {
   const runtime = useChatRuntime({
@@ -38,6 +39,8 @@ export const Assistant = () => {
             </Breadcrumb>
           </header>
           <Thread />
+          <GeocodeLocationToolUI />
+          <WeatherSearchToolUI />
         </SidebarInset>
       </SidebarProvider>
     </AssistantRuntimeProvider>
