@@ -122,11 +122,13 @@ export async function POST(req: Request) {
           }
         } else if (event.item.type === "tool_call_output_item") {
           const toolController = controllers.get(event.item.rawItem.callId);
-          toolController.setResponse(
-            new ToolResponse({
-              result: event.item.rawItem.output,
-            })
-          );
+          if (event.item.rawItem.output.type === "text") {
+            toolController.setResponse(
+              new ToolResponse({
+                result: JSON.parse(event.item.rawItem.output.text),
+              })
+            );
+          }
         }
       }
     }
