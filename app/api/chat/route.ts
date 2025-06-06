@@ -1,5 +1,7 @@
-import { Agent, run, tool } from "@openai/agents";
+import { Agent, AgentInputItem, run, tool } from "@openai/agents";
 import { agentops } from "agentops";
+import { CoreMessage } from "ai";
+import { createAssistantStreamResponse, ToolResponse } from "assistant-stream";
 import { z } from "zod";
 
 type Weather = {
@@ -68,18 +70,65 @@ const weatherAgent = new Agent({
   tools: [getWeather],
 });
 
-export const runtime = "edge";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  // await agentops.init();
+  await agentops.init();
 
-  const { messages } = await req.json();
+  const { messages } = (await req.json()) as {
+    messages: CoreMessage[];
+  };
 
-  const result = await run(weatherAgent,messages., {
-    stream: true,
-    signal: req.signal,
+  const result = await run(
+    weatherAgent,
+    messages.map((message): AgentInputItem => {
+      return {
+        role: message.role as any,
+        status: "completed",
+        content: [
+          {
+            type: "input_text",
+            text: (message.content as typeof message.content & any[])
+              .map((p) => p.text)
+              .join(""),
+          },
+        ],
+      };
+    }),
+    {
+      stream: true,
+      signal: req.signal,
+    }
+  );
+
+  return createAssistantStreamResponse(async (controller) => {
+    const controllers = new Map<string, any>();
+    for await (const event of result.toStream()) {
+      if (event.type === "raw_model_stream_event") {
+        if (event.data.type === "output_text_delta") {
+          controller.appendText(event.data.delta);
+        }
+      }
+      if (event.type === "run_item_stream_event") {
+        if (event.item.type === "tool_call_item") {
+          if (event.item.rawItem.type === "function_call") {
+            const toolController = controller.addToolCallPart({
+              toolName: event.item.rawItem.name,
+              toolCallId: event.item.rawItem.callId,
+              argsText: event.item.rawItem.arguments,
+            });
+
+            controllers.set(event.item.rawItem.callId, toolController);
+          }
+        } else if (event.item.type === "tool_call_output_item") {
+          const toolController = controllers.get(event.item.rawItem.callId);
+          toolController.setResponse(
+            new ToolResponse({
+              result: event.item.rawItem.output,
+            })
+          );
+        }
+      }
+    }
   });
-
-  return result.toDataStreamResponse();
 }
