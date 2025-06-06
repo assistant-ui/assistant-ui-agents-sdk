@@ -13,11 +13,14 @@
     "@assistant-ui/react": "^0.10.21",
     "@assistant-ui/react-ai-sdk": "^0.10.9",
     "@assistant-ui/react-markdown": "^0.10.3",
+    "@openai/agents": "^0.0.3",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "agentops": "^0.1.0",
     "ai": "^4.3.16",
+    "assistant-stream": "^0.2.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.513.0",
@@ -39,5 +42,6 @@
     "eslint-config-next": "15.3.2",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912"
 }
